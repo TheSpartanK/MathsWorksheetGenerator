@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Worksheet Generator</title>
+    <style>
+        /* Modern, clean styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 { margin-top: 0; color: #1a73e8; }
+        
+        /* Configuration Panel */
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .control-row:last-child { border-bottom: none; }
+        .toggle-group { display: flex; align-items: center; gap: 10px; }
+        .btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn:hover { background-color: #1557b0; }
+        .btn-secondary {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        .btn-secondary:hover { background-color: #d2e3fc; }
+        .main-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+        }
+        .input-num {
+            width: 60px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Worksheet Layout */
+        .worksheet-header {
+            display: none; /* Shown only in print/preview mode */
+            justify-content: space-between;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px 20px;
+            margin-top: 20px;
+        }
+        .question-card {
+            font-size: 20px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .q-num {
+            font-size: 14px;
+            color: #777;
+            width: 35px;
+            font-weight: bold;
+        }
+        
+        /* Print-specific overrides */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .controls { display: none; }
+            .worksheet-header { display: flex; }
+            .grid { grid-template-columns: repeat(3, 1fr); }
+            .btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    
+    
+
+<div class="container">
+    <!-- Settings Panel (Hidden during Print) -->
+    <div class="controls">
+        <h1>Worksheet Generator Settings</h1>
+        
+        <div class="control-row">
+            <label><strong>Total Questions:</strong></label>
+            <input type="number" id="totalQuestions" class="input-num" value="24" min="1" max="100">
+        </div>
+
+        <h3>Select Formats to Include</h3>
+        
+        <!-- Target container for dynamic settings checkboxes -->
+        <div id="checkboxesContainer"></div>
+
+        <div class="main-actions">
+            <button class="btn" onclick="generateWorksheet()">⚡ Generate Preview</button>
+            <button class="btn" style="background-color: #34a853;" onclick="window.print()">🖨️ Print Worksheet</button>
+        </div>
+    </div>
+
+    <!-- Live Paper Preview -->
+    <div class="worksheet-header">
+        <div><strong>Name:</strong> ___________________________</div>
+        <div><strong>Date:</strong> ___________________________</div>
+        <div><strong>Score:</strong> _________</div>
+    </div>
+
+    <div id="worksheetGrid" class="grid"></div>
+</div>
+
+<script>
+    // SINGLE SOURCE OF TRUTH: Add, remove, or temporarily disable formats here
+    const questionTypes = [
+
+
+        {
+            id: 'add2d',
+            label: 'Addition - 2-Digit (e.g., 45 + 23)',
+            description: '',
+            enabled: false, // Internal backend toggle to include/exclude from the entire app
+            defaultChecked: true, // Default checkbox state on page load
+            generate: () => {
+                const num1 = Math.floor(Math.random() * 80) + 10;
+                const num2 = Math.floor(Math.random() * 80) + 10;
+                return `${num1} + ${num2} = ______`;
+            }
+        },
+        {
+            id: 'add4d',
+            label: 'Addition - 4-Digit Addition (e.g., 4536 + 1979)',
+            description: '',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * (9999 - 400 + 1)) + 400;
+                const num2 = Math.floor(Math.random() * (9999 - 400 + 1)) + 400;
+                return `${num1} + ${num2} = ______`;
+            }
+        },
+        {
+            id: 'sub2d-pos',
+            label: 'Subtraction - 2-Digit +ve only (e.g., 44 - 12)',
+            description: '',
+            enabled: false,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * 89) + 11; // 11-99
+                const num2 = Math.floor(Math.random() * (num1 - 4)) + 4; // Guarantees positive answer
+                return `${num1} - ${num2} = ______`;
+            }
+        },
+        {
+            id: 'sub2d',
+            label: 'Subtraction - 2-Digit with -ve (e.g., 37 - 86)',
+            description: '',
+            enabled: false,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * 89) + 11; // 11-99
+                const num2 = Math.floor(Math.random() * 89) + 11; // 11-99
+                return `${num1} - ${num2} = ______`;
+            }
+        },
+        {
+            id: 'sub3d-pos',
+            label: 'Subtraction - 3-Digit +ve only (e.g., 446 - 312)',
+            description: '',
+            enabled: false,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * 960) + 40; // 40-999
+                const num2 = Math.floor(Math.random() * (num1 - 40)) + 40; // Guarantees positive answer
+                return `${num1} - ${num2} = ______`;
+            }
+        },
+        {
+            id: 'sub3d',
+            label: 'Subtraction - 3-Digit with -ve (e.g., 317 - 869)',
+            description: '',
+            enabled: false,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * 960) + 40; // 40-999
+                const num2 = Math.floor(Math.random() * 960) + 40; // 40-999
+                return `${num1} - ${num2} = ______`;
+            }
+        },
+        {
+            id: 'sub4d',
+            label: 'Subtraction - 4-Digit with -ve (e.g., 4435 - 6783)',
+            description: '',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * (9999 - 400 + 1)) + 400;
+                const num2 = Math.floor(Math.random() * (9999 - 400 + 1)) + 400;
+                return `${num1} - ${num2} = ______`;
+            }
+        },
+        {
+            id: 'squaredOps',
+            label: 'Squared Operations (4² to 22²)',
+            description: '',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * (22 - 4 + 1)) + 4;
+                const num2 = Math.floor(Math.random() * (22 - 4 + 1)) + 4;
+                const operations = ['+', '-', '×'];
+                const selectedOp = operations[Math.floor(Math.random() * operations.length)];
+                
+                return `${num1}² ${selectedOp} ${num2}² = ______`;
+            }
+        },
+        {
+            id: 'multTable',
+            label: 'Multiplication - Tables (up to 12 x 12)',
+            description: '',
+            enabled: false,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * 11) + 2;
+                const num2 = Math.floor(Math.random() * 11) + 2;
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+        {
+            id: 'multSimpleMixed',
+            label: 'Multiplication - Factors 3-12 by 13-20',
+            description: 'Multiplies a single/double-digit number (3 to 12) by a larger double-digit number (13 to 20).',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * (12 - 3 + 1)) + 3;
+                const num2 = Math.floor(Math.random() * (20 - 13 + 1)) + 13;
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+
+        {
+            id: 'multMixed',
+            label: 'Multiplication - (2-12 × 110-999)',
+            description: 'Multiply a single/double-digit number (2 to 12) by a larger three-digit number (110 to 999)',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+                const num2 = Math.floor(Math.random() * (999 - 110 + 1)) + 110;
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+        {
+            id: 'decMult',
+            label: 'Multiplication - Decimal (1.0-99.9 × 2-20)',
+            description: 'Decimal place movement operations',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const decNum = (Math.floor(Math.random() * (999 - 1 + 1)) + 1) / 10;
+                const wholeNum = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
+                return `${decNum} × ${wholeNum} = ______`;
+            }
+        },
+        {
+            id: 'powerOfTenMult',
+            label: 'Multiplication - Powers of 10',
+            description: '',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const base = (Math.floor(Math.random() * (9999 - 1 + 1)) + 1) / 10000;
+                const exp1 = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+                const exp2 = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+                
+                // Calculate the final numbers to display
+                const num1 = +(base * Math.pow(10, exp1)).toFixed(4);
+                const num2 = Math.pow(10, exp2);
+                
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+        {
+            id: 'negPowerOfTenMult',
+            label: 'Multiplication - Negative Powers of 10',
+            description: 'This variation multiplies a decimal number by negative powers of 10 (like 0.1, 0.01, etc.), which challenges students to shift the decimal point to the left.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const base = (Math.floor(Math.random() * (9999 - 1 + 1)) + 1) / 10000;
+                const exp1 = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+                // Generates a random negative exponent between -4 and -1
+                const exp2 = Math.floor(Math.random() * (-1 - (-4) + 1)) + (-4);
+                
+                const num1 = +(base * Math.pow(10, exp1)).toFixed(4);
+                const num2 = +(Math.pow(10, exp2)).toFixed(4);
+                
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+        {
+            id: 'scaledPowerOfTenMult',
+            label: 'Multiplication - Scaled Decimal Power of 10',
+            description: 'Multiplies a dynamic power of 10 decimal by a single digit integer scaled down by a negative power of 10.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const base1 = (Math.floor(Math.random() * (999 - 1 + 1)) + 1) / 1000;
+                const exp1 = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+                const num1 = +(base1 * Math.pow(10, exp1)).toFixed(4);
+
+                const exp2 = Math.floor(Math.random() * (-1 - (-4) + 1)) + (-4);
+                const multiplier = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+                const num2 = +(multiplier * Math.pow(10, exp2)).toFixed(4);
+
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+        {
+            id: 'largePowerOfTenMult',
+            label: 'Multiplication - Large Power of 10 Factors',
+            description: 'Multiplies a dynamic power of 10 decimal by a single-digit integer scaled up by a positive power of 10.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const base1 = (Math.floor(Math.random() * (9999 - 1 + 1)) + 1) / 10000;
+                const exp1 = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+                const num1 = +(base1 * Math.pow(10, exp1)).toFixed(4);
+
+                const multiplier = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+                const exp2 = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+                const num2 = multiplier * Math.pow(10, exp2);
+
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+        {
+            id: 'roundedPowerOfTenMult',
+            label: 'Multiplication - By 15 or 25',
+            description: 'Multiplies a rounded-up power of 10 scaled factor against either 15 or 25.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const base = (Math.floor(Math.random() * (999 - 10 + 1)) + 10) / 1000;
+                const exponent = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
+                
+                // Math.ceil acts exactly like Excel's ROUNDUP to the nearest integer
+                const num1 = Math.ceil(base * Math.pow(10, exponent));
+                
+                // Randomly select either 15 or 25
+                const num2 = Math.random() < 0.5 ? 15 : 25;
+                
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+
+        {
+            id: 'percentageOfLargeNum',
+            label: 'Multiplication - Percentage or Decimal of Large Numbers',
+            description: 'Calculates a multiple of 5 percentage against a large multiple of 100, randomly formatted as a percentage (%) or a decimal.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const percent = Math.floor(Math.random() * (20 - 1 + 1) + 1) * 5;
+                const value = Math.floor(Math.random() * (99 - 10 + 1) + 10) * 100;
+                
+                // 50% chance to show as percentage, 50% chance to show as decimal
+                if (Math.random() < 0.5) {
+                    return `${percent}% × ${value} = ______`;
+                } else {
+                    const decimalFormat = +(percent / 100).toFixed(2);
+                    return `${decimalFormat} × ${value} = ______`;
+                }
+            }
+        },
+
+        {
+            id: 'decimalMultiplesMult',
+            label: 'Multiplication - Decimal Multiples of 0.05',
+            description: 'Multiplies two decimals that are both multiples of 0.05 (ranging from 0.05 to 0.95).',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = +(Math.floor(Math.random() * (19 - 1 + 1) + 1) * 5 / 100).toFixed(2);
+                const num2 = +(Math.floor(Math.random() * (19 - 1 + 1) + 1) * 5 / 100).toFixed(2);
+                
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+        {
+            id: 'scientificLargeMult',
+            label: 'Multiplication - Large Powers of 10 Products',
+            description: 'Multiplies two large numbers that are multiples of powers of 10 (ranging from tens to millions).',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const digit1 = Math.floor(Math.random() * (9 - 1 + 1)) + 1;
+                const exp1 = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
+                const num1 = digit1 * Math.pow(10, exp1);
+
+                const digit2 = Math.floor(Math.random() * (9 - 1 + 1)) + 1;
+                const exp2 = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
+                const num2 = digit2 * Math.pow(10, exp2);
+
+                return `${num1} × ${num2} = ______`;
+            }
+        },
+
+        {
+            id: 'divMixed',
+            label: 'Division (110-999 ÷ 2-12)',
+            description: '',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const numSmall = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+                const numBig = Math.floor(Math.random() * (999 - 110 + 1)) + 110;
+                return `${numBig} ÷ ${numSmall} = ______`;
+            }
+        },
+        {
+            id: 'fractionOps',
+            label: 'Fractions - Mixed Arithmetic',
+            description: 'Generates arithmetic problems (addition, subtraction, or multiplication) between two random fractions.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * (11 - 1 + 1)) + 1;
+                const den1 = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+                
+                const num2 = Math.floor(Math.random() * (11 - 1 + 1)) + 1;
+                const den2 = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+                
+                const operations = ['+', '-', '×'];
+                const selectedOp = operations[Math.floor(Math.random() * operations.length)];
+                
+                // Uses standard HTML fraction markup for a clean layout
+                return `<sup>${num1}</sup>&frasl;<sub>${den1}</sub> ${selectedOp} <sup>${num2}</sup>&frasl;<sub>${den2}</sub> = ______`;
+            }
+        },
+
+        {
+            id: 'algebraParentheses',
+            label: 'Algebra - Linear Equations with Parentheses',
+            description: 'Generates linear equations with parentheses on both sides, randomizing four distinct number ranges and six individual positive/negative signs.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                const sign = () => Math.random() < 0.5 ? '+' : '-';
+
+                // 4 independent number ranges defined by your constraints
+                const n1 = rand(2, 16);
+                const n2 = rand(5, 16);
+                const n3 = rand(2, 9);
+                const n4 = rand(2, 16);
+
+                // 6 randomized signs (+ or -) for each part of the expression
+                const s1 = sign(); // Outside left multiplier
+                const s2 = sign(); // Inside left variable
+                const s3 = sign(); // Inside left constant operator
+                const s4 = sign(); // Outside right multiplier
+                const s5 = sign(); // Inside right variable
+                const s6 = sign(); // Inside right constant operator
+
+                // Construct clean left-hand side string templates
+                const leftMult = s1 === '-' ? `-${n1}` : `${n1}`;
+                const leftVar  = s2 === '-' ? '-A' : 'A';
+                const leftConst = `${s3} ${n2}`;
+
+                // Construct clean right-hand side string templates
+                const rightMult = s4 === '-' ? `-${n3}` : `${n3}`;
+                const rightVar  = s5 === '-' ? '-A' : 'A';
+                const rightConst = `${s6} ${n4}`;
+
+                return `${leftMult}(${leftVar} ${leftConst}) = ${rightMult}(${rightVar} ${rightConst})`;
+            }
+        },
+        {
+            id: 'algebraSubstitution',
+            label: 'Algebra - Single Variable Substitution',
+            description: 'Generates a linear expression where students substitute a given value for variable A to solve.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                
+                const coeff = rand(1, 12);
+                const constant = rand(6, 49);
+                const valA = rand(2, 12);
+                
+                return `${coeff}A + ${constant} = ______, &nbsp;&nbsp; A = ${valA}`;
+            }
+        },
+        {
+            id: 'algebraSolveAndSubstitute',
+            label: 'Algebra - Solve and Substitute Combo',
+            description: 'Requires students to solve a complex linear equation with parentheses on both sides to find variable A, then substitute that value into a second expression.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                const sign = () => Math.random() < 0.5 ? '+' : '-';
+
+                // Part 1: Generate the complex linear equation (from our algebraParentheses logic)
+                const n1 = rand(2, 16);
+                const n2 = rand(5, 16);
+                const n3 = rand(2, 9);
+                const n4 = rand(2, 16);
+
+                const s1 = sign(); const s2 = sign(); const s3 = sign();
+                const s4 = sign(); const s5 = sign(); const s6 = sign();
+
+                const leftMult = s1 === '-' ? `-${n1}` : `${n1}`;
+                const leftVar  = s2 === '-' ? '-A' : 'A';
+                const leftConst = `${s3} ${n2}`;
+
+                const rightMult = s4 === '-' ? `-${n3}` : `${n3}`;
+                const rightVar  = s5 === '-' ? '-A' : 'A';
+                const rightConst = `${s6} ${n4}`;
+
+                const equationStr = `${leftMult}(${leftVar} ${leftConst}) = ${rightMult}(${rightVar} ${rightConst})`;
+
+                // Part 2: Generate the evaluation expression template (from our algebraSubstitution logic)
+                const coeff = rand(1, 12);
+                const constant = rand(6, 49);
+                
+                const substitutionStr = `${coeff}A + ${constant} = ______`;
+
+                // Combine them into a clean, stacked or multi-part formatting structure
+                return `<div>1. Solve: ${equationStr}</div>
+                        <div style="margin-top: 5px; font-size: 0.9em; color: #555;">2. Then evaluate: ${substitutionStr}</div>`;
+            }
+        },
+        {
+            id: 'algebraRearrangement',
+            label: 'Algebra - Basic Rearrangement',
+            description: 'Generates one-step equations in three styles (multiplication, division with unknown numerator, or division with unknown denominator).',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                
+                // Pick two factors between 3 and 16 (Max possible product is 16*16 = 256)
+                const factor1 = rand(3, 16);
+                const factor2 = rand(3, 16);
+                const product = factor1 * factor2;
+
+                // Pick one of the 3 styles randomly
+                const styles = [
+                    `A / ${factor1} = ${factor2}`, // Style 1: A/4 = 8
+                    `${product} / A = ${factor2}`, // Style 2: 32/A = 8
+                    `${factor1}A = ${product}`     // Style 3: 8A = 32
+                ];
+                
+                const chosenStyle = styles[Math.floor(Math.random() * styles.length)];
+                
+                return `${chosenStyle}, &nbsp;&nbsp; A = ______`;
+            }
+        },
+        {
+            id: 'powerOfTenDivision',
+            label: 'Division - Large Powers of 10',
+            description: 'Divides numbers expressed as powers of 10, challenging students to subtract exponents.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                
+                const exp1 = rand(5, 15);
+                const exp2 = rand(2, 9);
+                
+                // Formatted with standard index notation
+                return `10<sup>${exp1}</sup> &divide; 10<sup>${exp2}</sup> = ______`;
+            }
+        },
+        {
+            id: 'powerOfTwoDivision',
+            label: 'Division - Large Powers of 2',
+            description: 'Divides numbers expressed as powers of 2. The first exponent is strictly larger, with a maximum index gap of 15.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                
+                const exp1 = rand(7, 23);
+                
+                // Determine boundaries for exp2 based on your criteria:
+                // 1. Must be at least 2.
+                // 2. Must be smaller than exp1 (exp1 - 1).
+                // 3. Gap cannot be more than 15 (exp1 - 15).
+                const minExp2 = Math.max(2, exp1 - 15);
+                const maxExp2 = exp1 - 1;
+                
+                const exp2 = rand(minExp2, maxExp2);
+                
+                return `2<sup>${exp1}</sup> &divide; 2<sup>${exp2}</sup> = ______`;
+            }
+        },
+
+        {
+            id: 'negativeIntegerOps',
+            label: 'Arithmetic - Directed Negative Integers',
+            description: 'Generates addition and subtraction equations using a mixture of positive and negative numbers between -30 and 30.',
+            enabled: true,
+            defaultChecked: false,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                const num1 = rand(-30, 30);
+                const num2 = rand(-30, 30);
+                const op = Math.random() < 0.5 ? '+' : '-';
+                
+                // Formats with parentheses around negative second terms for neatness, e.g., "12 - (-5)"
+                const displayNum2 = num2 < 0 ? `(${num2})` : num2;
+                return `${num1} ${op} ${displayNum2} = ______`;
+            }
+        },
+        {
+            id: 'lcmHcfChallenges',
+            label: 'Fractions - LCM or HCF Identification',
+            description: 'Alternates between asking for the Lowest Common Multiple (LCM) or Highest Common Factor (HCF) of two numbers.',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                const num1 = rand(4, 12);
+                const num2 = rand(4, 16);
+                
+                if (Math.random() < 0.5) {
+                    return `Find the LCM of ${num1} and ${num2} = ______`;
+                } else {
+                    return `Find the HCF of ${num1} and ${num2} = ______`;
+                }
+            }
+        },
+
+        {
+            id: 'missingNum',
+            label: 'Missing Number Algebra (e.g., 7 + __ = 15)',
+            description: '',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = Math.floor(Math.random() * 599) + 2; 
+                const answer = Math.floor(Math.random() * 994) + 5;
+                const num2 = num1 + answer;
+                return `${num1} + A = ${num2}`;
+            }
+        }
+    ];
+
+    // Filter array down to only backend-enabled types
+    const activeConfigs = questionTypes.filter(q => q.enabled);
+
+    // Render configuration settings dynamically on load
+    function initUI() {
+        const container = document.getElementById('checkboxesContainer');
+        container.innerHTML = '';
+
+        activeConfigs.forEach(config => {
+            const row = document.createElement('div');
+            row.className = 'control-row';
+            
+            // The template now includes a title attribute for hover tooltips
+            // and an optional description fallback string if one isn't written yet
+            const hoverText = config.description || 'No description provided.';
+            
+            row.innerHTML = `
+                <div class="toggle-group" title="${hoverText}">
+                    <input type="checkbox" id="type-${config.id}" ${config.defaultChecked ? 'checked' : ''}>
+                    <label for="type-${config.id}" style="cursor: help;">${config.label}</label>
+                </div>
+                <button class="btn btn-secondary" onclick="isolateType('${config.id}')">Only This Type</button>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+
+    // Build the worksheet preview
+    function generateWorksheet() {
+        const grid = document.getElementById('worksheetGrid');
+        grid.innerHTML = ''; 
+        
+        const totalCount = parseInt(document.getElementById('totalQuestions').value) || 24;
+        
+        // Find which checkboxes are ticked on the screen
+        const selectedConfigs = activeConfigs.filter(config => 
+            document.getElementById(`type-${config.id}`).checked
+        );
+
+        if (selectedConfigs.length === 0) {
+            grid.innerHTML = '<p style="color:red; grid-column: 1/-1;">Please select at least one question type template!</p>';
+            return;
+        }
+
+        // Generate worksheet elements cycling through checked logic rules
+        for (let i = 1; i <= totalCount; i++) {
+            const randomConfig = selectedConfigs[Math.floor(Math.random() * selectedConfigs.length)];
+            const questionText = randomConfig.generate();
+
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `<span class="q-num">${i})</span> <span>${questionText}</span>`;
+            grid.appendChild(card);
+        }
+    }
+
+    // Turn off all UI checkboxes except the isolated target type
+    function isolateType(targetId) {
+        activeConfigs.forEach(config => {
+            document.getElementById(`type-${config.id}`).checked = (config.id === targetId);
+        });
+        generateWorksheet();
+    }
+
+    // Fire initialization engines when page mounts
+    window.onload = () => {
+        initUI();
+        generateWorksheet();
+    };
+</script>
+</body>
+</html>
+
