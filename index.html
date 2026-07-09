@@ -722,8 +722,13 @@
             document.getElementById(`type-${config.id}`).checked
         );
 
+        // CORRECT BUG FIX: Revert strictly to each question's layout default configuration state
         if (selectedConfigs.length === 0) {
-            grid.innerHTML = '<p style="color:red; grid-column: 1/-1;">Please select at least one question type template!</p>';
+            activeConfigs.forEach(config => {
+                document.getElementById(`type-${config.id}`).checked = config.defaultChecked;
+            });
+            // Re-run the generation script with true page-load states safely restored
+            generateWorksheet();
             return;
         }
 
@@ -738,6 +743,8 @@
             grid.appendChild(card);
         }
     }
+
+
 
     // Turn off all UI checkboxes except the isolated target type
     function isolateType(targetId) {
