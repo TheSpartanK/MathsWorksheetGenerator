@@ -1,0 +1,230 @@
+/* 
+    Created on : Jul 12, 2026, 10:01:05 PM
+    Author     : Derrik Tikmann
+*/
+/* Modern, clean styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 { margin-top: 0; color: #1a73e8; }
+        
+        /* Configuration Panel */
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .control-row:last-child { border-bottom: none; }
+        .toggle-group { display: flex; align-items: center; gap: 10px; }
+        .btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn:hover { background-color: #1557b0; }
+        .btn-secondary {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        .btn-secondary:hover { background-color: #d2e3fc; }
+        .main-actions {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .input-num {
+            width: 60px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Worksheet Layout */
+        .worksheet-header {
+            display: none; /* Shown only in print/preview mode */
+            justify-content: space-between;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px 20px;
+            margin-top: 20px;
+        }
+        .question-card {
+            font-size: 20px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .q-num {
+            font-size: 14px;
+            color: #777;
+            width: 35px;
+            font-weight: bold;
+        }
+        
+        /* Interactive Online Test Layout Mode */
+        .test-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .test-row {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 6px;
+            border-left: 4px solid #1a73e8;
+        }
+        .test-input {
+            width: 140px;
+            padding: 6px 10px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            margin-left: 15px;
+            font-family: inherit;
+        }
+        .test-feedback {
+            margin-left: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .feedback-correct { color: #2b7a78; }
+        .feedback-wrong { color: #d93025; font-weight: normal; }
+        .feedback-actual-correct { font-weight: bold; color: #1a73e8; text-decoration: underline; }
+        .test-summary-card {
+            background: #e8f0fe;
+            border: 1px solid #1a73e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            color: #1a55b0;
+        }
+
+        /* Printable Answer Key & Cut Line Cutoff Styles */
+        .cut-line {
+            margin-top: 60px;
+            border-top: 2px dashed #777;
+            position: relative;
+            padding-top: 25px;
+        }
+        .cut-line::before {
+            content: "✂️ Teacher Answer Key - Cut Along Line";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+        }
+        .answer-key-title {
+            color: #1a73e8;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .ans-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px 25px;
+            font-size: 17px;
+        }
+        .ans-item {
+            font-weight: 500;
+            padding: 4px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+                /* Iterative Test States */
+        .test-row.is-correct {
+            border-left: 4px solid #2b7a78;
+            background-color: #f0f7f4;
+        }
+        .test-row.is-wrong {
+            border-left: 4px solid #d93025;
+            background-color: #fdf2f2;
+        }
+        .attempt-log-list {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+            font-size: 14px;
+            text-align: left;
+            color: #555;
+            font-weight: normal;
+        }
+        .attempt-log-item {
+            margin-bottom: 4px;
+        }
+        .mastered-section-title {
+            font-size: 14px;
+            color: #777;
+            background: #eee;
+            padding: 6px 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .test-input:disabled {
+            background-color: #f5f5f5;
+            color: #333;
+            cursor: not-allowed;
+            border-color: #ccc !important;
+        }
+
+
+        /* Print-specific overrides */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .controls { display: none; }
+            .worksheet-header { display: flex; }
+            .grid { grid-template-columns: repeat(3, 1fr); display: grid !important; }
+            .test-list, .test-summary-card, #submitTestBtn { display: none !important; }
+            .btn, button { display: none !important; }
+            .cut-line { border-top: 2px dashed #000; page-break-inside: avoid; display: block !important; } 
+        }
