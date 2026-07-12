@@ -105,7 +105,51 @@ const questionTypes = [
                 answer: (num1 - num2).toString() 
             };
         }
+    },    {
+        id: 'sub2d-no-borrow',
+        category: 'Subtraction',
+        level: 3, 
+        label: 'Level 3 (2-Digit No Borrowing)',
+        description: 'Two-digit subtraction specifically constrained so that the units digit of Y is less than or equal to X, avoiding any mental carrying operations.',
+        answerFormat: 'decimal',
+        enabled: true,
+        defaultChecked: false,
+        generate: () => {
+            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+            // Infinite loop allows safe mathematical re-rolls
+            while (true) {
+                const xTens = rand(1, 9);
+                const xUnits = rand(0, 9);
+
+                let num1 = (xTens * 10) + xUnits;
+                if (num1 === 10) {
+                    continue; // Safe re-roll transition
+                }
+
+                const yTens = rand(0, xTens); 
+                const yUnits = rand(0, xUnits); 
+
+                const num2 = (yTens * 10) + yUnits;
+
+                if (num2 === 0 || num1 === num2) {
+                    const fallbackUnits = xUnits === 0 ? 0 : rand(1, xUnits);
+                    const finalNum2 = num2 === 0 ? fallbackUnits || 1 : num2 - 1; 
+
+                    return {
+                        question: `${num1} - ${finalNum2 || 1} = `,
+                        answer: (num1 - (finalNum2 || 1)).toString()
+                    };
+                }
+
+                return { 
+                    question: `${num1} - ${num2} = `, 
+                    answer: (num1 - num2).toString() 
+                };
+            }
+        }
     },
+
         {
         id: 'sub2d-with-borrow',
         category: 'Subtraction',

@@ -80,7 +80,8 @@ function initUI() {
             row.style.gap = '8px';
             row.style.padding = '12px 0';
 
-            const safeGroupId = `category-group-${config.category.replace(/\s+/g, '-')}`;
+            // Clean everything except basic letters, numbers, and standard dashes safely
+            const safeGroupId = `category-group-${config.category.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
 
             // CONTROL CONFIG CHANGE: Initialized arrow indicator text to "▼ Show"
             let categoryHeaderHtml = `
@@ -192,16 +193,19 @@ function commonGenerationLogic() {
             const whole = Math.trunc(val); 
             const decimalPart = parseFloat((Math.abs(val) - Math.abs(whole)).toFixed(10));
 
-            let tolerance = 1.0e-6;
+            let tolerance = 1.0e-6; 
             let h1 = 1, h2 = 0, k1 = 0, k2 = 1;
             let b = decimalPart;
+            let iterations = 0; // Hard loop cap shield
             
             do {
                 let a = Math.floor(b);
                 let aux = h1; h1 = a * h1 + h2; h2 = aux;
                 aux = k1; k1 = a * k1 + k2; k2 = aux;
                 b = 1 / (b - a);
-            } while (Math.abs(decimalPart - h1 / k1) > decimalPart * tolerance);
+                iterations++;
+            } while (Math.abs(decimalPart - h1 / k1) > decimalPart * tolerance && iterations < 15);
+
 
             let finalNum = h1;
             let finalDen = k1;
