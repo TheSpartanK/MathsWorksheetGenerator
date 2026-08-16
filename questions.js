@@ -1,3 +1,6 @@
+const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+
 // SINGLE SOURCE OF TRUTH: All updated formulas mapping proper descriptions, questions, and precise answer strings
 const questionTypes = [
         {
@@ -67,7 +70,7 @@ const questionTypes = [
         enabled: true,
         defaultChecked: false,
         generate: () => {
-            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
             // 1. Break X down into tens and units components within its boundary
             const xTens = rand(1, 9);
@@ -115,7 +118,7 @@ const questionTypes = [
         enabled: true,
         defaultChecked: false,
         generate: () => {
-            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
             // Infinite loop allows safe mathematical re-rolls
             while (true) {
@@ -160,7 +163,7 @@ const questionTypes = [
         enabled: true,
         defaultChecked: false,
         generate: () => {
-            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
             // 1. Roll the units digits first to guarantee a borrow condition
             // xUnits must be less than yUnits, so xUnits ranges 0-8 and yUnits ranges (xUnits + 1)-9
@@ -302,8 +305,18 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const num1 = Math.floor(Math.random() * (12 - 3 + 1)) + 3;
-                const num2 = Math.floor(Math.random() * (20 - 13 + 1)) + 13;
+                //const num1 = Math.floor(Math.random() * (12 - 3 + 1)) + 3;
+                const allowed = [3, 4, 5, 6, 7, 8, 9, 11, 12];
+                const num1 = allowed[Math.floor(Math.random() * allowed.length)];
+                
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//
+//                let num1 = rand(3, 12);
+//                while (num1 === 10) {
+//                    num1 = rand(3, 12);
+//                }
+                
+                const num2 = Math.floor(Math.random() * (19 - 13 + 1)) + 13;
                 return { question: `${num1} × ${num2} = `, answer: (num1 * num2).toString() };
             }
         },
@@ -315,20 +328,25 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const num1 = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+                //const num1 = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+                const allowed = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12];
+                const num1 = allowed[Math.floor(Math.random() * allowed.length)];
                 const num2 = Math.floor(Math.random() * (999 - 110 + 1)) + 110;
                 return { question: `${num1} × ${num2} = `, answer: (num1 * num2).toString() };
             }
         },
         {
             id: 'decMult',
-            label: 'Multiplication - Decimal (1.0-99.9 × 2-20)',
+            label: 'Multiplication - Decimal (1.1-99.9 × 2-20)',
             description: 'Decimal place movement operations involving decimal products against standard whole number multipliers.',
             answerFormat: 'decimal',
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const decNum = (Math.floor(Math.random() * (999 - 1 + 1)) + 1) / 10;
+                let decNum = 1.0;
+                while (decNum === 1.0) {
+                    decNum = (Math.floor(Math.random() * (999 - 1 + 1)) + 1) / 10;
+                }
                 const wholeNum = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
                 // Use precise floating-point multiplier fixes
                 const ansValue = parseFloat((decNum * wholeNum).toFixed(2));
@@ -341,7 +359,7 @@ const questionTypes = [
             description: 'Multiplies decimal factors by positive powers of 10, utilizing fixed-point scaling to eliminate floating-point string bugs.',
             answerFormat: 'decimal',
             enabled: true,
-            defaultChecked: true,
+            defaultChecked: false,
             generate: () => {
                 const base = (Math.floor(Math.random() * 9999) + 1) / 10000;
                 const exp1 = Math.floor(Math.random() * 4) + 1;
@@ -360,7 +378,7 @@ const questionTypes = [
             description: 'Multiplies a decimal by negative powers of 10, forcing decimal point shifts to the left with precision rounding.',
             answerFormat: 'decimal',
             enabled: true,
-            defaultChecked: true,
+            defaultChecked: false,
             generate: () => {
                 const base = (Math.floor(Math.random() * 9999) + 1) / 10000;
                 const exp1 = Math.floor(Math.random() * 4) + 1;
@@ -437,7 +455,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const percent = Math.floor(Math.random() * (20 - 1 + 1) + 1) * 5;
+                const percent = Math.floor(Math.random() * (19 - 1 + 1) + 1) * 5;
                 const value = Math.floor(Math.random() * (99 - 10 + 1) + 10) * 100;
                 const ansValue = (percent / 100) * value;
                 
@@ -470,7 +488,7 @@ const questionTypes = [
             description: 'Multiplies two large numbers that are multiples of powers of 10 (ranging from tens to millions).',
             answerFormat: 'decimal',
             enabled: true,
-            defaultChecked: true,
+            defaultChecked: false,
             generate: () => {
                 const digit1 = Math.floor(Math.random() * (9 - 1 + 1)) + 1;
                 const exp1 = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
@@ -483,7 +501,7 @@ const questionTypes = [
                 return { question: `${num1} × ${num2} = `, answer: (num1 * num2).toString() };
             }
         },
-                {
+        {
             id: 'divMixed',
             label: 'Division (110-999 ÷ 2-12)',
             description: 'Generates division expressions. Requires students to write answers as clean mixed fractions or exact integers.',
@@ -503,34 +521,143 @@ const questionTypes = [
                 };
             }
         },
+        {
+            id: 'divMixed2',
+            label: 'Division (110-999 ÷ 13-25)',
+            description: 'Generates division expressions. Requires students to write answers as clean mixed fractions or exact integers.',
+            answerFormat: 'mixedFraction', // Enforces mixed fraction presentation
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const numSmall = Math.floor(Math.random() * (25 - 13 + 1)) + 13;
+                const numBig = Math.floor(Math.random() * (999 - 110 + 1)) + 110;
+                
+                // Store the precise decimal value as the answer source so normalizers compute remainders perfectly
+                const actualExactValue = numBig / numSmall;
 
+                return { 
+                    question: `${numBig} ÷ ${numSmall} = `, 
+                    answer: actualExactValue.toFixed(10) // Preserves the exact remainder digits!
+                };
+            }
+        },
 
         {
-            id: 'fractionOps',
-            label: 'Fractions - Mixed Arithmetic',
+            id: 'fractionMultiply',
+            label: 'Fractions - Multiplication',
+            description: 'Generates fraction equations using HTML fraction formatting rules, with denominators safely guarded against zero.',
+            answerFormat: 'mixedFraction',
+            enabled: true,
+            defaultChecked: false,
+            generate: () => {
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+                let num1 = rand(1, 11); 
+                let den1 = rand(2, 12);
+                while (num1 === den1) {
+                    den1 = rand(2, 12);
+                }
+
+                let num2 = rand(1, 11); 
+                let den2 = rand(2, 12);
+                while (num2 === den2 || den1 === den2) {
+                    den2 = rand(2, 12);
+                }
+                //const operations = ['+', '-', '×'];
+                //const selectedOp = operations[Math.floor(Math.random() * operations.length)];
+                
+                // Track answers using fractional string formats for clarity
+                let ansStr = "";
+                //if (selectedOp === '×') {
+                    ansStr = `${num1 * num2}/${den1 * den2}`;
+//                } else if (selectedOp === '+') {
+//                    ansStr = `${(num1 * den2) + (num2 * den1)}/${den1 * den2}`;
+//                } else {
+//                    ansStr = `${(num1 * den2) - (num2 * den1)}/${den1 * den2}`;
+//                }
+                
+                return { 
+                    question: `<sup>${num1}</sup>&frasl;<sub>${den1}</sub> X <sup>${num2}</sup>&frasl;<sub>${den2}</sub> = `, 
+                    answer: ansStr 
+                };
+            }
+        },
+        {
+            id: 'fractionAddition',
+            label: 'Fractions - Addition',
             description: 'Generates fraction equations using HTML fraction formatting rules, with denominators safely guarded against zero.',
             answerFormat: 'mixedFraction',
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-                const num1 = rand(1, 11); const den1 = rand(2, 12);
-                const num2 = rand(1, 11); const den2 = rand(2, 12);
-                const operations = ['+', '-', '×'];
-                const selectedOp = operations[Math.floor(Math.random() * operations.length)];
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+                let num1 = rand(1, 11); 
+                let den1 = rand(2, 12);
+                while (num1 === den1) {
+                    den1 = rand(2, 12);
+                }
+
+                let num2 = rand(1, 11); 
+                let den2 = rand(2, 12);
+                while (num2 === den2 || den1 === den2) {
+                    den2 = rand(2, 12);
+                }
+                //const operations = ['+', '-', '×'];
+                //const selectedOp = operations[Math.floor(Math.random() * operations.length)];
                 
                 // Track answers using fractional string formats for clarity
                 let ansStr = "";
-                if (selectedOp === '×') {
-                    ansStr = `${num1 * num2}/${den1 * den2}`;
-                } else if (selectedOp === '+') {
+//                if (selectedOp === '×') {
+//                    ansStr = `${num1 * num2}/${den1 * den2}`;
+//                } else if (selectedOp === '+') {
                     ansStr = `${(num1 * den2) + (num2 * den1)}/${den1 * den2}`;
-                } else {
-                    ansStr = `${(num1 * den2) - (num2 * den1)}/${den1 * den2}`;
-                }
+//                } else {
+//                    ansStr = `${(num1 * den2) - (num2 * den1)}/${den1 * den2}`;
+//                }
                 
                 return { 
-                    question: `<sup>${num1}</sup>&frasl;<sub>${den1}</sub> ${selectedOp} <sup>${num2}</sup>&frasl;<sub>${den2}</sub> = `, 
+                    question: `<sup>${num1}</sup>&frasl;<sub>${den1}</sub> + <sup>${num2}</sup>&frasl;<sub>${den2}</sub> = `, 
+                    answer: ansStr 
+                };
+            }
+        },
+        {
+            id: 'fractionSubtraction',
+            label: 'Fractions - Subtraction',
+            description: 'Generates fraction equations using HTML fraction formatting rules, with denominators safely guarded against zero.',
+            answerFormat: 'mixedFraction',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+                let num1 = rand(1, 11); 
+                let den1 = rand(2, 12);
+                while (num1 === den1) {
+                    den1 = rand(2, 12);
+                }
+
+                let num2 = rand(1, 11); 
+                let den2 = rand(2, 12);
+                while (num2 === den2 || den1 === den2) {
+                    den2 = rand(2, 12);
+                }
+//                const operations = ['+', '-', '×'];
+//                const selectedOp = operations[Math.floor(Math.random() * operations.length)];
+                
+                // Track answers using fractional string formats for clarity
+                let ansStr = "";
+//                if (selectedOp === '×') {
+//                    ansStr = `${num1 * num2}/${den1 * den2}`;
+//                } else if (selectedOp === '+') {
+//                    ansStr = `${(num1 * den2) + (num2 * den1)}/${den1 * den2}`;
+//                } else {
+                    ansStr = `${(num1 * den2) - (num2 * den1)}/${den1 * den2}`;
+//                }
+                
+                return { 
+                    question: `<sup>${num1}</sup>&frasl;<sub>${den1}</sub> - <sup>${num2}</sup>&frasl;<sub>${den2}</sub> = `, 
                     answer: ansStr 
                 };
             }
@@ -543,7 +670,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const sign = () => Math.random() < 0.5 ? '+' : '-';
                 
                 while (true) {
@@ -599,7 +726,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const sign = () => Math.random() < 0.5 ? '+' : '-';
                 const randNonZero = (min, max) => { let num = 0; while (num === 0) num = rand(min, max); return num; };
 
@@ -667,7 +794,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const coeff = rand(1, 12); const constant = rand(6, 49); const valA = rand(2, 12);
                 const ansValue = (coeff * valA) + constant;
                 
@@ -687,12 +814,12 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const randNonZero = (min, max) => { let num = 0; while (num === 0) num = rand(min, max); return num; };
 
-                const coeff = randNonZero(-12, 12); 
-                const constant = randNonZero(-49, 49); 
-                const valA = randNonZero(-12, 12);
+                const coeff = randNonZero(-19, 19); 
+                const constant = randNonZero(-249, 249); 
+                const valA = randNonZero(-19, 19);
                 const ansValue = (coeff * valA) + constant;
                 
                 let coeffStr = coeff === 1 ? '' : (coeff === -1 ? '-' : coeff);
@@ -715,9 +842,9 @@ const questionTypes = [
             description: 'Generates one-step equations in three styles (multiplication, division with unknown numerator, or division with unknown denominator).',
             answerFormat: 'decimal',
             enabled: true,
-            defaultChecked: true,
+            defaultChecked: false,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const factor1 = rand(3, 16); const factor2 = rand(3, 16); const product = factor1 * factor2;
 
                 const styles = [
@@ -738,7 +865,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 2)) - 1;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const randNonZero = (min, max) => { let num = 0; while (num === 0) num = rand(min, max); return num; };
 
                 const factor1 = randNonZero(-16, 16); 
@@ -766,9 +893,9 @@ const questionTypes = [
             description: 'Divides numbers expressed as powers of 10, challenging students to subtract exponents.',
             answerFormat: 'decimal',
             enabled: true,
-            defaultChecked: true,
+            defaultChecked: false,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const exp1 = rand(5, 15); const exp2 = rand(2, 9);
                 return { question: `10<sup>${exp1}</sup> &divide; 10<sup>${exp2}</sup> = `, answer: `10^${exp1 - exp2}` };
             }
@@ -781,7 +908,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const exp1 = rand(7, 23);
                 const minExp2 = Math.max(2, exp1 - 15); const maxExp2 = exp1 - 1;
                 const exp2 = rand(minExp2, maxExp2);
@@ -797,7 +924,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: false,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 
                 // Roll the first term normally (can be positive or negative)
                 const num1 = rand(-30, 30);
@@ -818,14 +945,15 @@ const questionTypes = [
         },
 
         {
+            // Rewrite this, maybe first select the answer, then work backwards from there. Too many questions have no decent answer
             id: 'lcmHcfChallenges',
             label: 'Fractions - LCM or HCF Identification',
             description: 'Alternates between asking for the Lowest Common Multiple (LCM) or Highest Common Factor (HCF) of two numbers.',
             answerFormat: 'decimal',
             enabled: true,
-            defaultChecked: true,
+            defaultChecked: false,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const num1 = rand(4, 12); const num2 = rand(4, 16);
                 
                 const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
@@ -844,7 +972,7 @@ const questionTypes = [
             description: 'Generates missing term linear algebra problems targeting single-digit or double-digit integer solutions.',
             answerFormat: 'decimal',
             enabled: true,
-            defaultChecked: true,
+            defaultChecked: false,
             generate: () => {
                 const num1 = Math.floor(Math.random() * 599) + 2; 
                 const answer = Math.floor(Math.random() * 994) + 5;
@@ -861,7 +989,7 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const randNonZero = (min, max) => { let num = 0; while (num === 0) num = rand(min, max); return num; };
 
                 const num1 = randNonZero(-599, 599); 
