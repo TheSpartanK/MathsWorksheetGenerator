@@ -908,15 +908,23 @@ const questionTypes = [
             enabled: true,
             defaultChecked: true,
             generate: () => {
-//                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+                const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
                 const exp1 = rand(7, 23);
-                const minExp2 = Math.max(2, exp1 - 15); const maxExp2 = exp1 - 1;
+                const minExp2 = Math.max(2, exp1 - 15); 
+                const maxExp2 = exp1 - 1;
                 const exp2 = rand(minExp2, maxExp2);
                 
-                return { question: `2<sup>${exp1}</sup> &divide; 2<sup>${exp2}</sup> = `, answer: `2^${exp1 - exp2}` };
+                // Calculate the actual decimal value using 2 ** X
+                const finalExponent = exp1 - exp2;
+                const answer = 2 ** finalExponent;
+
+                return { 
+                    question: `2<sup>${exp1}</sup> &divide; 2<sup>${exp2}</sup> = `, 
+                    answer: answer.toString()
+                };
             }
         },
-                {
+        {
             id: 'negativeIntegerOps',
             label: 'Arithmetic - Directed Negative Integers',
             description: 'Generates neat addition and subtraction equations using a mixture of positive and negative structures without double-sign issues.',

@@ -142,7 +142,7 @@ function toggleCategoryCollapse(groupId, headerEl) {
 
 
 
-    // Shared generation execution engine that dynamically logs question configurations
+// Shared generation execution engine that dynamically logs question configurations
 function commonGenerationLogic() {
     const totalCount = parseInt(document.getElementById('totalQuestions').value) || 24;
     let selectedConfigs = activeConfigs.filter(config => {
@@ -150,19 +150,13 @@ function commonGenerationLogic() {
         return cb ? cb.checked : false;
     });
 
-    // TARGET RULE: If the button is clicked and nothing is selected, force system defaults
+    globalActiveQuestionsList = [];
+
+    // If no checkboxes are selected, return the empty list immediately
     if (selectedConfigs.length === 0) {
-        activeConfigs.forEach(config => {
-            const checkbox = document.getElementById(`type-${config.id}`);
-            if (checkbox) {
-                checkbox.checked = config.defaultChecked;
-            }
-        });
-        // Re-filter now that defaults are safely restored to the DOM
-        selectedConfigs = activeConfigs.filter(config => config.defaultChecked);
+        return globalActiveQuestionsList;
     }
 
-    globalActiveQuestionsList = [];
     for (let i = 1; i <= totalCount; i++) {
         const randomConfig = selectedConfigs[Math.floor(Math.random() * selectedConfigs.length)];
         const dataObj = randomConfig.generate();
