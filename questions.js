@@ -285,6 +285,36 @@ const questionTypes = [
             }
         },
         {
+            id: 'squareOfX',
+            label: 'Squares (24² to 99²)',
+            description: 'Calculates the square of a number between 24 and 99, excluding multiples of 10.',
+            answerFormat: 'decimal',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                let x;
+                // Generate a number between 24 and 99, re-rolling if it ends in 0
+                do {
+                    x = Math.floor(Math.random() * (99 - 24 + 1)) + 24;
+                } while (x % 10 === 0);
+
+                return { question: `${x}² = `, answer: (x * x).toString() };
+            }
+        },
+        {
+            id: 'cubeOfX',
+            label: 'Cubes (3³ to 9³)',
+            description: 'Calculates the cube of a number between 3 and 9.',
+            answerFormat: 'decimal',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const x = Math.floor(Math.random() * (9 - 3 + 1)) + 3;
+
+                return { question: `${x}³ = `, answer: (x * x * x).toString() };
+            }
+        },
+        {
             id: 'multTable',
             label: 'Multiplication - Tables (up to 12 x 12)',
             description: 'Generates standard primary curriculum multiplication core table arrays scaling up to 12.',
@@ -431,7 +461,7 @@ const questionTypes = [
                 return { question: `${num1} × ${num2} = `, answer: ansValue.toString() };
             }
         },
-                {
+        {
             id: 'roundedPowerOfTenMult',
             label: 'Multiplication - By 15 or 25',
             description: 'Multiplies a rounded-up power of 10 scaled factor against either 15 or 25.',
@@ -444,6 +474,21 @@ const questionTypes = [
                 const num1 = Math.ceil(base * Math.pow(10, exponent));
                 const num2 = Math.random() < 0.5 ? 15 : 25;
                 
+                return { question: `${num1} × ${num2} = `, answer: (num1 * num2).toString() };
+            }
+        },
+        {
+            id: 'less100Mult',
+            label: 'Multiplication - (94-99 × 21-999)',
+            description: 'Multiply a double-digit number close to 100 (94 to 99) by a large number (21 to 999)',
+            answerFormat: 'decimal',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                //const num1 = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+                const allowed = [94,95,96,97,98,99];
+                const num1 = allowed[Math.floor(Math.random() * allowed.length)];
+                const num2 = Math.floor(Math.random() * (999 - 21 + 1)) + 21;
                 return { question: `${num1} × ${num2} = `, answer: (num1 * num2).toString() };
             }
         },
