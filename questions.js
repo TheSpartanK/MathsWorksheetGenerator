@@ -366,6 +366,19 @@ const questionTypes = [
             }
         },
         {
+            id: 'multDecimalEven',
+            label: 'Multiplication - Decimals (.5) × Even Numbers',
+            description: 'Generates multiplication questions with a decimal ending in .5 (2.5 to 30.5) and an even integer (60 to 400).',
+            answerFormat: 'decimal',
+            enabled: true,
+            defaultChecked: true,
+            generate: () => {
+                const num1 = (Math.floor(Math.random() * 29) + 2) + 0.5; // Generates 2.5 to 30.5
+                const num2 = (Math.floor(Math.random() * 171) * 2) + 60; // Generates even numbers 60 to 400
+                return { question: `${num1} × ${num2} = `, answer: (num1 * num2).toString() };
+            }
+        },
+        {
             id: 'decMult',
             label: 'Multiplication - Decimal (1.1-99.9 × 2-20)',
             description: 'Decimal place movement operations involving decimal products against standard whole number multipliers.',
